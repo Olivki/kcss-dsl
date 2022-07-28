@@ -205,7 +205,7 @@ class Stylesheet(
 	val CharSequence.next: Selector get() = custom("+", false, false)
 	val CharSequence.nextAll: Selector get() = custom("~", false, false)
 	operator fun CharSequence.div(obj: CharSequence) = child.append(obj.toSelector())
-	operator fun CharSequence.mod(obj: CharSequence) = next.append(obj.toSelector())
+	operator fun CharSequence.rem(obj: CharSequence) = next.append(obj.toSelector())
 	operator fun CharSequence.minus(obj: CharSequence) = nextAll.append(obj.toSelector())
 	operator fun CharSequence.rangeTo(obj: CharSequence) = children.append(obj.toSelector())
 
