@@ -55,11 +55,11 @@ class Color(
 
     private fun Int.twoDigitHex() = (if (this < 16) "0" else "") + Integer.toHexString(this)
 
-    fun toHSL(): HSLValues {
+    fun toHSL(): HslValues {
         val max = Math.max(Math.max(red, green), blue)
         val min = Math.min(Math.min(red, green), blue)
         val avg = (max + min) / 2
-        val hsl = HSLValues(avg, avg, avg)
+        val hsl = HslValues(avg, avg, avg)
 
         if (max == min) {
             // achromatic
@@ -89,7 +89,7 @@ class Color(
         return hsl
     }
 
-    fun setHsl(hsl: HSLValues): Color {
+    fun setHsl(hsl: HslValues): Color {
         if (hsl.saturation == 0f) {
             // achromatic
             red = hsl.lightness
@@ -223,7 +223,7 @@ class Color(
 
         fun fromHex(value: Int) = fromHex(Integer.toHexString(value).padStart(6, '0'))
 
-        fun fromHSL(hsl: HSLValues): Color {
+        fun fromHSL(hsl: HslValues): Color {
             val color = Color(0f, 0f, 0f)
             color.setHsl(hsl)
             return color
