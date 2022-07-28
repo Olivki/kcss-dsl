@@ -1,11 +1,12 @@
 package net.ormr.kcss
 
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class ContentPropertyHandler(val name: String) {
-    operator fun getValue(stylesheet: StyleSheetBuilder, property: KProperty<*>) = stylesheet.getProperty(name) as Any?
+internal class ContentPropertyHandler(private val name: String) : ReadWriteProperty<StyleSheetBuilder, Any?> {
+    override fun getValue(thisRef: StyleSheetBuilder, property: KProperty<*>) = thisRef.getProperty(name) as Any?
 
-    operator fun setValue(stylesheet: StyleSheetBuilder, property: KProperty<*>, value: Any?) {
-        stylesheet.setProperty(name, "\"${value.toString().replace("\"", "\\\"")}\"")
+    override fun setValue(thisRef: StyleSheetBuilder, property: KProperty<*>, value: Any?) {
+        thisRef.setProperty(name, "\"${value.toString().replace("\"", "\\\"")}\"")
     }
 }
