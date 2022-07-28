@@ -149,7 +149,7 @@ class Color(
         fun fromRgb(red: Int, green: Int, blue: Int, alpha: Float = 1F) =
             Color(red.toFloat() / 255F, green.toFloat() / 255F, blue.toFloat() / 255F, alpha)
 
-        fun fromHex(rawHexString: String): Color? {
+        fun fromHex(rawHexString: String): Color {
             val hexValue = if (rawHexString[0] == '#') rawHexString.drop(1) else rawHexString
 
             // In CSS4 the alpha channel comes last:
@@ -203,11 +203,11 @@ class Color(
                     val a = hexValue.substring(6, 8).toInt(16)
                     fromRgb(r, g, b, a / 255f)
                 }
-                else -> null
+                else -> throw IllegalArgumentException("Given value '$rawHexString' is not a valid CSS HEX color")
             }
         }
 
-        fun fromHex(value: Int) = fromHex(value.toString(16).padStart(6, '0'))
+        fun fromHex(value: Int): Color = fromHex(value.toString(16).padStart(6, '0'))
 
         fun fromHsl(hsl: HslValues): Color {
             val color = Color(0F, 0F, 0F)
