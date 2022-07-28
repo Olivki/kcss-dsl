@@ -1,6 +1,6 @@
-package azadev.kotlin.css.test
+package net.ormr.kcss.test
 
-import azadev.kotlin.css.Stylesheet
+import net.ormr.kcss.Stylesheet
 import org.junit.Assert.*
 
 

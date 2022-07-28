@@ -1,4 +1,4 @@
-package azadev.kotlin.css.colors
+package net.ormr.kcss.colors
 
 
 class HSLValues(

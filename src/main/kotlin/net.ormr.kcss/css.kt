@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package azadev.kotlin.css
+package net.ormr.kcss
 
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols

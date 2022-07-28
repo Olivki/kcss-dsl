@@ -1,8 +1,8 @@
 @file:Suppress("unused")
 
-package azadev.kotlin.css.dimens
+package net.ormr.kcss.dimens
 
-import azadev.kotlin.css.cssDecimalFormat
+import net.ormr.kcss.cssDecimalFormat
 
 
 class LinearDimension(

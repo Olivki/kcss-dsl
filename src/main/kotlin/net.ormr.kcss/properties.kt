@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package azadev.kotlin.css
+package net.ormr.kcss
 
 // CSS Reference
 // http://www.w3schools.com/cssref/default.asp

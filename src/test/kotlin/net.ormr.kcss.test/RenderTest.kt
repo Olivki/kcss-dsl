@@ -1,8 +1,8 @@
-package azadev.kotlin.css.test
+package net.ormr.kcss.test
 
-import azadev.kotlin.css.*
-import azadev.kotlin.css.colors.*
-import azadev.kotlin.css.dimens.*
+import net.ormr.kcss.*
+import net.ormr.kcss.colors.*
+import net.ormr.kcss.dimens.*
 import org.junit.*
 import org.junit.Assert.*
 

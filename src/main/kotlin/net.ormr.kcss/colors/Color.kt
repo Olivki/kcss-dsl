@@ -1,8 +1,8 @@
 @file:Suppress("unused")
 
-package azadev.kotlin.css.colors
+package net.ormr.kcss.colors
 
-import azadev.kotlin.css.cssDecimalFormat
+import net.ormr.kcss.cssDecimalFormat
 
 
 class Color(

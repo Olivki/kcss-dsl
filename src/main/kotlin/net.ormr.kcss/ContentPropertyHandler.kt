@@ -1,10 +1,9 @@
-package azadev.kotlin.css
+package net.ormr.kcss
 
-import azadev.kotlin.css.colors.hex
 import kotlin.reflect.KProperty
 
 
-class ColorPropertyHandler(
+class ContentPropertyHandler(
 		val name: String
 ) {
 	@Suppress("USELESS_CAST")
@@ -12,9 +11,6 @@ class ColorPropertyHandler(
 			= stylesheet.getProperty(name) as Any?
 
 	operator fun setValue(stylesheet: Stylesheet, property: KProperty<*>, value: Any?) {
-		stylesheet.setProperty(name, when (value) {
-			is Int -> hex(value)
-			else -> value
-		})
+		stylesheet.setProperty(name, "\"${value.toString().replace("\"", "\\\"")}\"")
 	}
 }

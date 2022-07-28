@@ -1,4 +1,4 @@
-package azadev.kotlin.css
+package net.ormr.kcss
 
 
 interface ASelector : CharSequence

@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package azadev.kotlin.css
+package net.ormr.kcss
 
 
 // https://www.w3.org/TR/CSS21/propidx.html

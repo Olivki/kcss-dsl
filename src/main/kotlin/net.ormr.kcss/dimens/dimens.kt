@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package azadev.kotlin.css.dimens
+package net.ormr.kcss.dimens
 
 
 val Number.px: LinearDimension get() = dimen(this, LinearUnits.PX)
