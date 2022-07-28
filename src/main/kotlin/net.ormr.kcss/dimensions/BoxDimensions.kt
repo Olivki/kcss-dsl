@@ -1,6 +1,6 @@
 package net.ormr.kcss.dimensions
 
-import net.ormr.kcss.dimensions.LinearDimension.Companion.from as dimen
+import net.ormr.kcss.dimensions.LinearDimension.Companion.from as linear
 
 class BoxDimensions(
 	var top: LinearDimension = 0.px,
@@ -8,23 +8,19 @@ class BoxDimensions(
 	var bottom: LinearDimension = top,
 	var left: LinearDimension = right,
 ) {
-    override fun toString(): String {
-        return when {
-            top == right && top == bottom && top == left -> top.toString()
-            top == bottom && left == right -> "$top $right"
-            left == right -> "$top $right $bottom"
-            else -> "$top $right $bottom $left"
-        }
+    override fun toString(): String = when {
+        top == right && top == bottom && top == left -> top.toString()
+        top == bottom && left == right -> "$top $right"
+        left == right -> "$top $right $bottom"
+        else -> "$top $right $bottom $left"
     }
 
     companion object {
-        fun from(vararg args: Any): BoxDimensions {
-            return when (args.size) {
-                1 -> BoxDimensions(dimen(args[0]))
-                2 -> BoxDimensions(dimen(args[0]), dimen(args[1]))
-                3 -> BoxDimensions(dimen(args[0]), dimen(args[1]), dimen(args[2]))
-                else -> BoxDimensions(dimen(args[0]), dimen(args[1]), dimen(args[2]), dimen(args[3]))
-            }
+        fun from(vararg args: Any): BoxDimensions = when (args.size) {
+            1 -> BoxDimensions(linear(args[0]))
+            2 -> BoxDimensions(linear(args[0]), linear(args[1]))
+            3 -> BoxDimensions(linear(args[0]), linear(args[1]), linear(args[2]))
+            else -> BoxDimensions(linear(args[0]), linear(args[1]), linear(args[2]), linear(args[3]))
         }
     }
 }

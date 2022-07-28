@@ -3,8 +3,8 @@ package net.ormr.kcss.dimensions
 import net.ormr.kcss.cssDecimalFormat
 
 class LinearDimension(
-	var value: Float,
-	var units: LinearUnits,
+    var value: Float,
+    var units: LinearUnits,
 ) {
     override fun toString(): String {
         val str = cssDecimalFormat.format(value)!!
@@ -21,28 +21,22 @@ class LinearDimension(
             }
         }
 
-        fun fromString(s: String): LinearDimension {
-            if (s.endsWith('%'))
-                return LinearDimension(s.dropLast(1).toFloat(), LinearUnits.PERCENT)
+        fun fromString(string: String): LinearDimension {
+            if (string.endsWith('%')) return LinearDimension(string.dropLast(1).toFloat(), LinearUnits.PERCENT)
 
             val units = when {
-                s.endsWith("px") -> LinearUnits.PX
-                s.endsWith("em") -> LinearUnits.EM
-                s.endsWith("ex") -> LinearUnits.EX
-
-                s.endsWith("in") -> LinearUnits.INCH
-                s.endsWith("cm") -> LinearUnits.CM
-                s.endsWith("mm") -> LinearUnits.MM
-                s.endsWith("pt") -> LinearUnits.PT
-                s.endsWith("pc") -> LinearUnits.PC
-
+                string.endsWith("px") -> LinearUnits.PX
+                string.endsWith("em") -> LinearUnits.EM
+                string.endsWith("ex") -> LinearUnits.EX
+                string.endsWith("in") -> LinearUnits.INCH
+                string.endsWith("cm") -> LinearUnits.CM
+                string.endsWith("mm") -> LinearUnits.MM
+                string.endsWith("pt") -> LinearUnits.PT
+                string.endsWith("pc") -> LinearUnits.PC
                 else -> null
-            }
+            } ?: return LinearDimension(string.toFloat(), LinearUnits.PX)
 
-            if (units != null)
-                return LinearDimension(s.dropLast(2).toFloat(), units)
-
-            return LinearDimension(s.toFloat(), LinearUnits.PX)
+            return LinearDimension(string.dropLast(2).toFloat(), units)
         }
     }
 }

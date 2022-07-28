@@ -5,10 +5,10 @@ package net.ormr.kcss.colors
 import net.ormr.kcss.cssDecimalFormat
 
 class Color(
-	var red: Float,
-	var green: Float,
-	var blue: Float,
-	var alpha: Float = 1F,
+    var red: Float,
+    var green: Float,
+    var blue: Float,
+    var alpha: Float = 1F,
 ) {
     var redInt: Int
         get() = (red * 255F).toInt()
@@ -34,18 +34,16 @@ class Color(
             alpha = value.toFloat() / 255F
         }
 
-    fun copy() = Color(red, green, blue)
-
     fun toHexString(): String {
-        val res = "#${redInt.twoDigitHex()}${greenInt.twoDigitHex()}${blueInt.twoDigitHex()}"
+        val hex = "#${redInt.twoDigitHex()}${greenInt.twoDigitHex()}${blueInt.twoDigitHex()}"
         var i = 1
 
         while (i <= 5) {
-            if (res[i] != res[i + 1]) return res
+            if (hex[i] != hex[i + 1]) return hex
             i += 2
         }
 
-        return "#${res[1]}${res[3]}${res[5]}"
+        return "#${hex[1]}${hex[3]}${hex[5]}"
     }
 
     override fun toString() = when {
@@ -53,100 +51,96 @@ class Color(
         else -> toHexString()
     }
 
-    private fun Int.twoDigitHex() = (if (this < 16) "0" else "") + Integer.toHexString(this)
+    private fun Int.twoDigitHex() = "${if (this < 16) "0" else ""}${this.toString(16)}"
 
-    fun toHSL(): HslValues {
-        val max = Math.max(Math.max(red, green), blue)
-        val min = Math.min(Math.min(red, green), blue)
-        val avg = (max + min) / 2
-        val hsl = HslValues(avg, avg, avg)
+    fun toHslValues(): HslValues {
+        val max = red.coerceAtLeast(green).coerceAtLeast(blue)
+        val min = red.coerceAtMost(green).coerceAtMost(blue)
+        val average = (max + min) / 2
+        val hsl = HslValues(average, average, average)
 
         if (max == min) {
             // achromatic
-            hsl.hue = 0f
-            hsl.saturation = 0f
+            hsl.hue = 0F
+            hsl.saturation = 0F
         } else {
-            val d = max - min
-            if (hsl.lightness > .5f)
-                hsl.saturation = d / (2 - max - min)
-            else
-                hsl.saturation = d / (max + min)
+            val delta = max - min
+
+            if (hsl.lightness > 0.5F) {
+                hsl.saturation = delta / (2 - max - min)
+            } else {
+                hsl.saturation = delta / (max + min)
+            }
 
             when (max) {
                 red -> {
-                    hsl.hue = (green - blue) / d
-                    if (green < blue)
-                        hsl.hue += 6f
+                    hsl.hue = (green - blue) / delta
+                    if (green < blue) hsl.hue += 6F
                 }
 
-                green -> hsl.hue = (blue - red) / d + 2
-                blue -> hsl.hue = (red - green) / d + 4
+                green -> hsl.hue = (blue - red) / delta + 2
+                blue -> hsl.hue = (red - green) / delta + 4
             }
 
-            hsl.hue /= 6f
+            hsl.hue /= 6F
         }
 
         return hsl
     }
 
-    fun setHsl(hsl: HslValues): Color {
-        if (hsl.saturation == 0f) {
+    fun setHsl(hsl: HslValues): Color = apply {
+        if (hsl.saturation == 0F) {
             // achromatic
             red = hsl.lightness
             green = hsl.lightness
             blue = hsl.lightness
         } else {
-            val q = if (hsl.lightness < .5f)
-                hsl.lightness * (1f + hsl.saturation)
-            else
-                hsl.lightness + hsl.saturation - hsl.lightness * hsl.saturation
+            val q = when {
+                hsl.lightness < 0.5F -> hsl.lightness * (1F + hsl.saturation)
+                else -> hsl.lightness + hsl.saturation - hsl.lightness * hsl.saturation
+            }
 
-            val p = 2f * hsl.lightness - q
-            red = hue2rgb(p, q, hsl.hue + 1f / 3f)
-            green = hue2rgb(p, q, hsl.hue)
-            blue = hue2rgb(p, q, hsl.hue - 1f / 3f)
+            val p = 2F * hsl.lightness - q
+            red = hueToRgb(p, q, hsl.hue + 1F / 3F)
+            green = hueToRgb(p, q, hsl.hue)
+            blue = hueToRgb(p, q, hsl.hue - 1F / 3F)
         }
-
-        return this
     }
 
-    private fun hue2rgb(p: Float, q: Float, _t: Float): Float {
+    private fun hueToRgb(p: Float, q: Float, _t: Float): Float {
         var t = _t
-        if (t < 0f)
-            t += 1f
-        if (t > 1f)
-            t -= 1f
-        if (t < 1f / 6f)
-            return p + (q - p) * 6f * t
-        if (t < .5f)
-            return q
-        if (t < 2f / 3f)
-            return p + (q - p) * (2f / 3f - t) * 6f
-        return p
+        if (t < 0F) t += 1F
+        if (t > 1F) t -= 1F
+        return when {
+            t < 1F / 6F -> p + (q - p) * 6F * t
+            t < 0.5F -> q
+            t < 2F / 3F -> p + (q - p) * (2F / 3F - t) * 6F
+            else -> p
+        }
     }
 
     // Color adjustment (values should be between 0 and 1)
 
     fun lighten(dl: Float): Color {
-        val hsl = toHSL()
+        val hsl = toHslValues()
         hsl.setLightnessSafe(hsl.lightness + dl)
         return setHsl(hsl)
     }
 
     fun darken(dl: Float): Color {
-        val hsl = toHSL()
+        val hsl = toHslValues()
         hsl.setLightnessSafe(hsl.lightness - dl)
         return setHsl(hsl)
     }
 
     fun saturate(dl: Float): Color {
-        val hsl = toHSL()
+        val hsl = toHslValues()
         hsl.setSaturationSafe(hsl.lightness + dl)
         return setHsl(hsl)
     }
 
     fun desaturate(dl: Float): Color {
-        val hsl = toHSL()
+        val hsl = toHslValues()
         hsl.setSaturationSafe(hsl.lightness - dl)
         return setHsl(hsl)
     }
@@ -155,76 +149,68 @@ class Color(
         fun fromRgb(red: Int, green: Int, blue: Int, alpha: Float = 1F) =
             Color(red.toFloat() / 255F, green.toFloat() / 255F, blue.toFloat() / 255F, alpha)
 
-        fun fromHex(_s: String): Color? {
-            val s = if (_s[0] == '#') _s.drop(1) else _s
+        fun fromHex(rawHexString: String): Color? {
+            val hexValue = if (rawHexString[0] == '#') rawHexString.drop(1) else rawHexString
 
             // In CSS4 the alpha channel comes last:
             // https://www.w3.org/TR/css-color-4/#hex-notation
-            return when (s.length) {
+            return when (hexValue.length) {
                 1 -> { // 0x00f
-                    val b = Integer.parseInt(s[0].toString(), 16)
-                    return fromRgb(0, 0, b * 16 + b)
+                    val b = hexValue[0].toString().toInt(16)
+                    fromRgb(0, 0, b * 16 + b)
                 }
-
                 2 -> { // 0x0f0
-                    val g = Integer.parseInt(s[0].toString(), 16)
-                    val b = Integer.parseInt(s[1].toString(), 16)
-                    return fromRgb(0, g * 16 + g, b * 16 + b)
+                    val g = hexValue[0].toString().toInt(16)
+                    val b = hexValue[1].toString().toInt(16)
+                    fromRgb(0, g * 16 + g, b * 16 + b)
                 }
-
                 3 -> {
-                    val r = Integer.parseInt(s[0].toString(), 16)
-                    val g = Integer.parseInt(s[1].toString(), 16)
-                    val b = Integer.parseInt(s[2].toString(), 16)
-                    return fromRgb(r * 16 + r, g * 16 + g, b * 16 + b)
+                    val r = hexValue[0].toString().toInt(16)
+                    val g = hexValue[1].toString().toInt(16)
+                    val b = hexValue[2].toString().toInt(16)
+                    fromRgb(r * 16 + r, g * 16 + g, b * 16 + b)
                 }
-
                 4 -> {
-                    val r = Integer.parseInt(s[0].toString(), 16)
-                    val g = Integer.parseInt(s[1].toString(), 16)
-                    val b = Integer.parseInt(s[2].toString(), 16)
-                    val a = Integer.parseInt(s[3].toString(), 16)
-                    return fromRgb(r * 16 + r, g * 16 + g, b * 16 + b, 255f / a * 16 + a)
+                    val r = hexValue[0].toString().toInt(16)
+                    val g = hexValue[1].toString().toInt(16)
+                    val b = hexValue[2].toString().toInt(16)
+                    val a = hexValue[3].toString().toInt(16)
+                    fromRgb(r * 16 + r, g * 16 + g, b * 16 + b, 255f / a * 16 + a)
                 }
-
                 5 -> { // 0x0faabb
-                    val r = Integer.parseInt(s.substring(0, 1), 16)
-                    val g = Integer.parseInt(s.substring(1, 3), 16)
-                    val b = Integer.parseInt(s.substring(3, 5), 16)
-                    return fromRgb(r, g, b)
+                    val r = hexValue.take(1).toInt(16)
+                    val g = hexValue.substring(1, 3).toInt(16)
+                    val b = hexValue.substring(3, 5).toInt(16)
+                    fromRgb(r, g, b)
                 }
-
                 6 -> {
-                    val r = Integer.parseInt(s.substring(0, 2), 16)
-                    val g = Integer.parseInt(s.substring(2, 4), 16)
-                    val b = Integer.parseInt(s.substring(4, 6), 16)
-                    return fromRgb(r, g, b)
+                    val r = hexValue.take(2).toInt(16)
+                    val g = hexValue.substring(2, 4).toInt(16)
+                    val b = hexValue.substring(4, 6).toInt(16)
+                    fromRgb(r, g, b)
                 }
-
                 7 -> { // 0x0faabbcc
-                    val r = Integer.parseInt(s.substring(0, 1), 16)
-                    val g = Integer.parseInt(s.substring(1, 3), 16)
-                    val b = Integer.parseInt(s.substring(3, 5), 16)
-                    val a = Integer.parseInt(s.substring(5, 7), 16)
-                    return fromRgb(r, g, b, a / 255f)
+                    val r = hexValue.take(1).toInt(16)
+                    val g = hexValue.substring(1, 3).toInt(16)
+                    val b = hexValue.substring(3, 5).toInt(16)
+                    val a = hexValue.substring(5, 7).toInt(16)
+                    fromRgb(r, g, b, a / 255f)
                 }
-
                 8 -> {
-                    val r = Integer.parseInt(s.substring(0, 2), 16)
-                    val g = Integer.parseInt(s.substring(2, 4), 16)
-                    val b = Integer.parseInt(s.substring(4, 6), 16)
-                    val a = Integer.parseInt(s.substring(6, 8), 16)
-                    return fromRgb(r, g, b, a / 255f)
+                    val r = hexValue.take(2).toInt(16)
+                    val g = hexValue.substring(2, 4).toInt(16)
+                    val b = hexValue.substring(4, 6).toInt(16)
+                    val a = hexValue.substring(6, 8).toInt(16)
+                    fromRgb(r, g, b, a / 255f)
                 }
-
                 else -> null
             }
         }
 
-        fun fromHex(value: Int) = fromHex(Integer.toHexString(value).padStart(6, '0'))
+        fun fromHex(value: Int) = fromHex(value.toString(16).padStart(6, '0'))
 
-        fun fromHSL(hsl: HslValues): Color {
-            val color = Color(0f, 0f, 0f)
+        fun fromHsl(hsl: HslValues): Color {
+            val color = Color(0F, 0F, 0F)
             color.setHsl(hsl)
             return color
         }
