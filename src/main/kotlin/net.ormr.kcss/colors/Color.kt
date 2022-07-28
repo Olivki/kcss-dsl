@@ -2,7 +2,7 @@
 
 package net.ormr.kcss.colors
 
-import net.ormr.kcss.cssDecimalFormat
+import net.ormr.kcss.formatCssDecimal
 
 class Color(
     var red: Float,
@@ -47,7 +47,7 @@ class Color(
     }
 
     override fun toString() = when {
-        alpha < 1f -> "rgba($redInt,$greenInt,$blueInt,${cssDecimalFormat.format(alpha)})"
+        alpha < 1f -> "rgba($redInt,$greenInt,$blueInt,${formatCssDecimal(alpha)})"
         else -> toHexString()
     }
 

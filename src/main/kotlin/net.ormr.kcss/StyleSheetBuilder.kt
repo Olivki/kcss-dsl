@@ -83,7 +83,7 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
                     value != null -> sb.run {
                         append(property.name)
                         append(":")
-                        append(if (value is Number) cssDecimalFormat.format(value.toFloat()) else value)
+                        append(if (value is Number) formatCssDecimal(value.toFloat()) else value)
 
                         if (i < lastIdx) append(";")
                     }
@@ -262,8 +262,11 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
     //
     // CLASSES AND IDs
     //
-    fun CharSequence.c(selector: Any, body: (StyleSheetBuilder.() -> Unit)? = null) = custom(".$selector", false, true, body)
-    fun CharSequence.id(selector: Any, body: (StyleSheetBuilder.() -> Unit)? = null) = custom("#$selector", false, true, body)
+    fun CharSequence.c(selector: Any, body: (StyleSheetBuilder.() -> Unit)? = null) =
+        custom(".$selector", false, true, body)
+
+    fun CharSequence.id(selector: Any, body: (StyleSheetBuilder.() -> Unit)? = null) =
+        custom("#$selector", false, true, body)
 
 
     //
