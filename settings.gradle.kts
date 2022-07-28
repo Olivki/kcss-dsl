@@ -1,1 +1,1 @@
-rootProject.name = "AzaKotlinCSS"
+rootProject.name = "kcss-dsl"
