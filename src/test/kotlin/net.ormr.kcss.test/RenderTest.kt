@@ -398,11 +398,11 @@ class RenderTest : ATest {
         }
         testRender("a{padding:10px}a{padding:10px}a{padding:10px 20%}a{padding:10px 0 5px}a{padding:10px 0 5px 20px}a{padding:10px 10px 5px 0}") {
             a { padding = box(10.px) }
-            a { padding = box(10) }
+            a { padding = box(10.px) }
             a { padding = box(10.px, 20.percent) }
-            a { padding = box(10.px, 0, "5px") }
-            a { padding = box(10.px, 0, 5.px, 20.px) }
-            a { padding = box(10, 10, 5, 0) }
+            a { padding = box(10.px, 0.px, 5.px) }
+            a { padding = box(10.px, 0.px, 5.px, 20.px) }
+            a { padding = box(10.px, 10.px, 5.px, 0.px) }
         }
     }
 

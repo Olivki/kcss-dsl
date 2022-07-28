@@ -23,4 +23,16 @@ val Number.pc: LinearDimension get() = linear(this, LinearUnits.PC)
 @Suppress("NOTHING_TO_INLINE")
 private inline fun linear(value: Number, units: LinearUnits) = LinearDimension(value.toFloat(), units)
 
-fun box(vararg args: Any) = BoxDimensions.from(*args)
+fun box(top: LinearDimension): BoxDimensions = BoxDimensions(top)
+
+fun box(top: LinearDimension, right: LinearDimension): BoxDimensions = BoxDimensions(top, right)
+
+fun box(top: LinearDimension, right: LinearDimension, bottom: LinearDimension): BoxDimensions =
+    BoxDimensions(top, right, bottom)
+
+fun box(
+    top: LinearDimension,
+    right: LinearDimension,
+    bottom: LinearDimension,
+    left: LinearDimension,
+): BoxDimensions = BoxDimensions(top, right, bottom, left)
