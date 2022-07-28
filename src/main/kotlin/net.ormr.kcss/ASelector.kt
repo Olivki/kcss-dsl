@@ -9,22 +9,22 @@ interface ASelector : CharSequence {
 
     fun custom(
         selector: String,
-        _spaceBefore: Boolean = true,
-        _spaceAfter: Boolean = true,
+        spaceBefore: Boolean = true,
+        spaceAfter: Boolean = true,
         body: (StyleSheetBuilder.() -> Unit)? = null,
     ): Selector
 
     fun pseudo(selector: String, body: (StyleSheetBuilder.() -> Unit)? = null) = custom(
         selector,
-        _spaceBefore = false,
-        _spaceAfter = true,
+        spaceBefore = false,
+        spaceAfter = true,
         body = body
     )
 
     fun pseudoFn(selector: String, body: (StyleSheetBuilder.() -> Unit)? = null) = custom(
         selector,
-        _spaceBefore = false,
-        _spaceAfter = true,
+        spaceBefore = false,
+        spaceAfter = true,
         body = body
     )
 }

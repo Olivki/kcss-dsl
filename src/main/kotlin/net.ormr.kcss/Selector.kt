@@ -2,7 +2,7 @@ package net.ormr.kcss
 
 
 class Selector(var stylesheet: StyleSheetBuilder) : ASelector {
-    var rows = ArrayList<Row>(1)
+    internal var rows = mutableListOf<Row>()
 
     operator fun invoke(body: StyleSheetBuilder.() -> Unit): StyleSheetBuilder {
         stylesheet.body()
@@ -11,79 +11,79 @@ class Selector(var stylesheet: StyleSheetBuilder) : ASelector {
 
     override fun custom(
         selector: String,
-        _spaceBefore: Boolean,
-        _spaceAfter: Boolean,
+        spaceBefore: Boolean,
+        spaceAfter: Boolean,
         body: (StyleSheetBuilder.() -> Unit)?,
     ): Selector {
-        if (rows.isEmpty())
-            rows.add(Row(selector, _spaceBefore, _spaceAfter))
-        else for (row in rows)
-            row.append(selector, _spaceBefore, _spaceAfter)
+        if (rows.isEmpty()) {
+            rows.add(Row(selector, spaceBefore, spaceAfter))
+        } else {
+            for (row in rows) {
+                row.append(selector, spaceBefore, spaceAfter)
+            }
+        }
 
         body?.invoke(stylesheet)
         return this
     }
 
-    fun append(obj: ASelector): Selector {
-        when (obj) {
+    fun append(selector: ASelector): Selector = apply {
+        when (selector) {
             is Selector -> {
-                val newRows = ArrayList<Row>(rows.size * obj.rows.size)
-                for (r1 in rows)
-                    for (r2 in obj.rows) {
-                        val r = Row(r1.sb, r1.spaceBefore, r1.spaceAfter)
-                        r.append(r2.sb, r2.spaceBefore, r2.spaceAfter)
-                        newRows.add(r)
+                val newRows = ArrayList<Row>(rows.size * selector.rows.size)
+                for (i in rows) {
+                    for (k in selector.rows) {
+                        val result = Row(i.builder, i.spaceBefore, i.spaceAfter)
+                        result.append(k.builder, k.spaceBefore, k.spaceAfter)
+                        newRows.add(result)
                     }
+                }
                 rows = newRows
-                obj.stylesheet.moveDataTo(stylesheet)
+                selector.stylesheet.moveDataTo(stylesheet)
             }
-
             is StyleSheetBuilder -> {
-                append(obj.selector!!)
-                obj.moveDataTo(stylesheet)
+                append(selector.selector!!)
+                selector.moveDataTo(stylesheet)
             }
         }
-        return this
     }
 
+    fun toList(selectorPrefix: CharSequence, spaceBefore: Boolean) =
+        rows.map { it.toString(selectorPrefix, spaceBefore) }
 
-    fun toList(selectorPrefix: CharSequence, _spaceBefore: Boolean) =
-        rows.map { it.toString(selectorPrefix, _spaceBefore) }
-
-    fun toString(selectorPrefix: CharSequence, _spaceBefore: Boolean) =
-        toList(selectorPrefix, _spaceBefore).joinToString(",")
+    fun toString(selectorPrefix: CharSequence, spaceBefore: Boolean) =
+        toList(selectorPrefix, spaceBefore).joinToString(",")
 
     override fun toString() = toString("", true)
 
-    class Row(
-        str: CharSequence,
+    internal class Row(
+        content: CharSequence,
         var spaceBefore: Boolean = true,
         var spaceAfter: Boolean = true,
     ) {
-        val sb = StringBuilder(str)
+        val builder = StringBuilder(content)
 
-        fun append(str: CharSequence, _spaceBefore: Boolean, _spaceAfter: Boolean) {
-            if (sb.isEmpty())
-                spaceBefore = _spaceBefore
-            else if (_spaceBefore && spaceAfter)
-                sb.append(' ')
-
-            sb.append(str)
-
-            spaceAfter = _spaceAfter
-        }
-
-        fun toString(selectorPrefix: CharSequence, _spaceBefore: Boolean): String {
-            return buildString {
-                if (selectorPrefix.isNotEmpty()) {
-                    append(selectorPrefix)
-                    if (_spaceBefore && spaceBefore) append(' ')
-                }
-                append(sb)
+        fun append(str: CharSequence, spaceBefore: Boolean, spaceAfter: Boolean) {
+            if (builder.isEmpty()) {
+                this.spaceBefore = spaceBefore
+            } else if (spaceBefore && this.spaceAfter) {
+                builder.append(' ')
             }
+
+            builder.append(str)
+
+            this.spaceAfter = spaceAfter
         }
 
-        override fun toString() = sb.toString()
+        fun toString(selectorPrefix: CharSequence, spaceBefore: Boolean): String = buildString {
+            if (selectorPrefix.isNotEmpty()) {
+                append(selectorPrefix)
+                if (spaceBefore && this@Row.spaceBefore) append(' ')
+            }
+            append(builder)
+        }
+
+        override fun toString() = builder.toString()
     }
 
     companion object {

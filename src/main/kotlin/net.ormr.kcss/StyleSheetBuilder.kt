@@ -17,30 +17,29 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
         callback?.invoke(this)
     }
 
-    fun include(stylesheet: StyleSheetBuilder): StyleSheetBuilder {
+    fun include(stylesheet: StyleSheetBuilder): StyleSheetBuilder = apply {
         children.add(stylesheet)
-        return this
     }
 
     override fun custom(
         selector: String,
-        _spaceBefore: Boolean,
-        _spaceAfter: Boolean,
+        spaceBefore: Boolean,
+        spaceAfter: Boolean,
         body: (StyleSheetBuilder.() -> Unit)?,
     ): Selector {
-        val stylesheet = StyleSheetBuilder()
-        val sel = Selector(stylesheet)
-        sel.custom(selector, _spaceBefore, _spaceAfter)
+        val builder = StyleSheetBuilder()
+        val sel = Selector(builder)
+        sel.custom(selector, spaceBefore, spaceAfter)
 
-        stylesheet.selector = sel
-        include(stylesheet)
+        builder.selector = sel
+        include(builder)
 
-        body?.invoke(stylesheet)
+        body?.invoke(builder)
 
         return sel
     }
 
-    fun getProperty(name: String) = properties.find { it.name == name }
+    internal fun getProperty(name: String): Property? = properties.find { it.name == name }
 
     fun setProperty(name: String, value: Any?) {
         properties.add(Property(name, value))
@@ -55,7 +54,8 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
     }
 
     fun render() = buildString { render(this) }
-    fun renderTo(sb: StringBuilder) = render(sb)
+
+    fun renderTo(builder: StringBuilder) = render(builder)
 
     fun renderToFile(file: File) {
         file.delete()
@@ -64,23 +64,23 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
 
     fun renderToFile(path: String) = renderToFile(File(path))
 
-    private fun render(sb: StringBuilder, selectorPrefix: CharSequence = "", _spaceBefore: Boolean = true) {
+    private fun render(builder: StringBuilder, selectorPrefix: CharSequence = "", spaceBefore: Boolean = true) {
         val selector = selector
         val atRule = atRule
 
-        if (atRule != null) sb.append(atRule).append('{')
+        if (atRule != null) builder.append(atRule).append('{')
 
         if (properties.isNotEmpty()) {
-            val selectorStr = selector?.toString(selectorPrefix, _spaceBefore)
+            val selectorStr = selector?.toString(selectorPrefix, spaceBefore)
             val hasSelector = !selectorStr.isNullOrEmpty()
 
-            if (hasSelector) sb.append(selectorStr).append('{')
+            if (hasSelector) builder.append(selectorStr).append('{')
 
             val lastIdx = properties.lastIndex
             properties.forEachIndexed { i, property ->
                 val value = property.value
                 when {
-                    value != null -> sb.run {
+                    value != null -> builder.run {
                         append(property.name)
                         append(":")
                         append(if (value is Number) formatCssDecimal(value.toFloat()) else value)
@@ -88,30 +88,28 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
                         if (i < lastIdx) append(";")
                     }
 
-                    i == lastIdx && sb.last() == ';' -> sb.setLength(sb.length - 1)
+                    i == lastIdx && builder.last() == ';' -> builder.setLength(builder.length - 1)
                 }
             }
 
-            if (hasSelector) sb.append("}")
+            if (hasSelector) builder.append("}")
         }
-
 
         for (child in children) {
             val rows = selector?.rows
             if (!rows.isNullOrEmpty()) {
-                rows.forEach { child.render(sb, it.toString(selectorPrefix, _spaceBefore), it.spaceAfter) }
+                rows.forEach { child.render(builder, it.toString(selectorPrefix, spaceBefore), it.spaceAfter) }
             } else {
-                child.render(sb, selectorPrefix)
+                child.render(builder, selectorPrefix)
             }
         }
 
-
-        if (atRule != null) sb.append('}')
+        if (atRule != null) builder.append('}')
     }
 
     override fun toString() = "Stylesheet(sel:$selector; props:${properties.size}; childs:${children.size})"
 
-    class Property(val name: String, val value: Any?) {
+    internal data class Property(val name: String, val value: Any?) {
         override fun toString() = "$name:$value"
     }
 
@@ -138,46 +136,37 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
 
     fun CharSequence.custom(
         selector: String,
-        _spaceBefore: Boolean = true,
-        _spaceAfter: Boolean = true,
+        spaceBefore: Boolean = true,
+        spaceAfter: Boolean = true,
         body: (StyleSheetBuilder.() -> Unit)? = null,
-    ): Selector {
-        return when (this) {
-            is ASelector -> custom(selector, _spaceBefore, _spaceAfter, body)
-            else -> toSelector().custom(selector, _spaceBefore, _spaceAfter, body)
-        }
+    ): Selector = when (this) {
+        is ASelector -> custom(selector, spaceBefore, spaceAfter, body)
+        else -> toSelector().custom(selector, spaceBefore, spaceAfter, body)
     }
 
-    fun CharSequence.pseudo(selector: String, body: (StyleSheetBuilder.() -> Unit)? = null): Selector {
-        return when (this) {
-            is ASelector -> pseudo(selector, body)
-            else -> toSelector().pseudo(selector, body)
-        }
+    fun CharSequence.pseudo(selector: String, body: (StyleSheetBuilder.() -> Unit)? = null): Selector = when (this) {
+        is ASelector -> pseudo(selector, body)
+        else -> toSelector().pseudo(selector, body)
     }
 
-    fun CharSequence.pseudoFn(selector: String, body: (StyleSheetBuilder.() -> Unit)? = null): Selector {
-        return when (this) {
-            is ASelector -> pseudoFn(selector, body)
-            else -> toSelector().pseudoFn(selector, body)
-        }
+    fun CharSequence.pseudoFn(selector: String, body: (StyleSheetBuilder.() -> Unit)? = null): Selector = when (this) {
+        is ASelector -> pseudoFn(selector, body)
+        else -> toSelector().pseudoFn(selector, body)
     }
 
     infix fun CharSequence.and(obj: CharSequence): Selector {
         val sel = toSelector()
-        when (obj) {
+        return when (obj) {
             is Selector -> {
-                for (row in obj.rows)
-                    sel.rows.add(row)
-                return sel
+                for (row in obj.rows) sel.rows.add(row)
+                sel
             }
-
             is StyleSheetBuilder -> {
                 val selector = obj.selector!!
                 selector.rows.addAll(0, sel.rows)
-                return selector
+                selector
             }
-
-            else -> return and(obj.toSelector())
+            else -> and(obj.toSelector())
         }
     }
 
@@ -195,10 +184,10 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
     //
     // TRAVERSING
     //
-    val CharSequence.children: Selector get() = custom(" ", false, false)
-    val CharSequence.child: Selector get() = custom(">", false, false)
-    val CharSequence.next: Selector get() = custom("+", false, false)
-    val CharSequence.nextAll: Selector get() = custom("~", false, false)
+    val CharSequence.children: Selector get() = custom(" ", spaceBefore = false, spaceAfter = false)
+    val CharSequence.child: Selector get() = custom(">", spaceBefore = false, spaceAfter = false)
+    val CharSequence.next: Selector get() = custom("+", spaceBefore = false, spaceAfter = false)
+    val CharSequence.nextAll: Selector get() = custom("~", spaceBefore = false, spaceAfter = false)
     operator fun CharSequence.div(obj: CharSequence) = child.append(obj.toSelector())
     operator fun CharSequence.rem(obj: CharSequence) = next.append(obj.toSelector())
     operator fun CharSequence.minus(obj: CharSequence) = nextAll.append(obj.toSelector())
@@ -214,18 +203,18 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
     http://stackoverflow.com/questions/13987979/how-to-properly-escape-attribute-values-in-css-js-selector-attr-value
     https://developer.mozilla.org/en-US/docs/Web/API/CSS/escape
      */
-    fun CharSequence.attr(attrName: Any, body: (StyleSheetBuilder.() -> Unit)? = null): Selector {
-        return when (this) {
-            is ASelector -> custom("[$attrName]", false, true, body)
-            else -> toSelector().attr(attrName, body)
-        }
+    fun CharSequence.attr(attrName: Any, body: (StyleSheetBuilder.() -> Unit)? = null): Selector = when (this) {
+        is ASelector -> custom("[$attrName]", false, true, body)
+        else -> toSelector().attr(attrName, body)
     }
 
-    fun CharSequence.attr(attrName: Any, attrValue: Any, body: (StyleSheetBuilder.() -> Unit)? = null): Selector {
-        return when (this) {
-            is ASelector -> custom("[$attrName=${escapeAttrValue(attrValue.toString())}]", false, true, body)
-            else -> toSelector().attr(attrName, attrValue, body)
-        }
+    fun CharSequence.attr(
+        attrName: Any,
+        attrValue: Any,
+        body: (StyleSheetBuilder.() -> Unit)? = null,
+    ): Selector = when (this) {
+        is ASelector -> custom("[$attrName=${escapeAttrValue(attrValue.toString())}]", false, true, body)
+        else -> toSelector().attr(attrName, attrValue, body)
     }
 
     fun CharSequence.attr(
@@ -233,14 +222,13 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
         attrValue: Any,
         attrFiler: AttributeFilter,
         body: (StyleSheetBuilder.() -> Unit)? = null,
-    ): Selector {
-        return when (this) {
-            is ASelector -> custom("[$attrName$attrFiler=${escapeAttrValue(attrValue.toString())}]", false, true, body)
-            else -> toSelector().attr(attrName, attrValue, attrFiler, body)
-        }
+    ): Selector = when (this) {
+        is ASelector -> custom("[$attrName$attrFiler=${escapeAttrValue(attrValue.toString())}]", false, true, body)
+        else -> toSelector().attr(attrName, attrValue, attrFiler, body)
     }
 
     operator fun CharSequence.get(attrName: Any, body: (StyleSheetBuilder.() -> Unit)? = null) = attr(attrName, body)
+
     operator fun CharSequence.get(attrName: Any, attrValue: Any, body: (StyleSheetBuilder.() -> Unit)? = null) =
         attr(attrName, attrValue, body)
 
@@ -254,7 +242,7 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
     private fun escapeAttrValue(str: String): String {
         // http://stackoverflow.com/questions/5578845/css-attribute-selectors-the-rules-on-quotes-or-none
         val isIdentifier =
-            str.all { it >= '0' && it <= '9' || it >= 'a' && it <= 'z' || it >= 'A' && it <= 'Z' || it == '-' || it == '_' }
+            str.all { it in '0'..'9' || it in 'a'..'z' || it in 'A'..'Z' || it == '-' || it == '_' }
         return if (isIdentifier) str else "\"${str.replace("\"", "\\\"")}\""
     }
 
@@ -263,10 +251,10 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
     // CLASSES AND IDs
     //
     fun CharSequence.c(selector: Any, body: (StyleSheetBuilder.() -> Unit)? = null) =
-        custom(".$selector", false, true, body)
+        custom(".$selector", spaceBefore = false, spaceAfter = true, body = body)
 
     fun CharSequence.id(selector: Any, body: (StyleSheetBuilder.() -> Unit)? = null) =
-        custom("#$selector", false, true, body)
+        custom("#$selector", spaceBefore = false, spaceAfter = true, body = body)
 
 
     //

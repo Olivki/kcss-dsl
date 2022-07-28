@@ -2,6 +2,6 @@
 
 package net.ormr.kcss
 
-fun stylesheet(body: StyleSheetBuilder.() -> Unit) = body
+fun styleSheet(body: StyleSheetBuilder.() -> Unit) = body
 
 fun StyleSheetBuilder.url(str: String) = "url($str)"

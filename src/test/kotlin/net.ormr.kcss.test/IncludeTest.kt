@@ -18,7 +18,7 @@ class IncludeTest : ATest {
 
     @Test
     fun mixins() {
-        val hoverLinks = stylesheet {
+        val hoverLinks = styleSheet {
             a.hover { color = 0xf2cacf }
         }
 
@@ -33,7 +33,7 @@ class IncludeTest : ATest {
 
     @Test
     fun mixins2() {
-        val clrfix = stylesheet {
+        val clrfix = styleSheet {
             zoom = 1
             after {
                 content = " "
