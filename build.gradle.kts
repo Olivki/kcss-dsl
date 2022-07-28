@@ -1,4 +1,5 @@
 plugins {
+    id("me.him188.maven-central-publish") version "1.0.0-dev-3"
     kotlin("multiplatform") version "1.7.10"
 }
 
@@ -7,6 +8,12 @@ version = "0.1.0"
 
 repositories {
     mavenCentral()
+}
+
+mavenCentralPublish {
+    useCentralS01()
+    singleDevGithubProject("Olivki", "kcss-dsl")
+    licenseApacheV2()
 }
 
 kotlin {
