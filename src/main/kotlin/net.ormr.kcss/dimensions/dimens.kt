@@ -1,4 +1,4 @@
-package net.ormr.kcss.dimens
+package net.ormr.kcss.dimensions
 
 val Number.px: LinearDimension get() = dimen(this, LinearUnits.PX)
 val Number.em: LinearDimension get() = dimen(this, LinearUnits.EM)

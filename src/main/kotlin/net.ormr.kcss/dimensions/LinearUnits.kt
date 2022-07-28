@@ -1,4 +1,4 @@
-package net.ormr.kcss.dimens
+package net.ormr.kcss.dimensions
 
 enum class LinearUnits(val value: String) {
     // Relative units

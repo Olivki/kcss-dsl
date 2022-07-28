@@ -4,7 +4,7 @@ import net.ormr.kcss.*
 import net.ormr.kcss.colors.hex
 import net.ormr.kcss.colors.rgb
 import net.ormr.kcss.colors.rgba
-import net.ormr.kcss.dimens.*
+import net.ormr.kcss.dimensions.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

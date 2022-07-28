@@ -1,6 +1,6 @@
-package net.ormr.kcss.dimens
+package net.ormr.kcss.dimensions
 
-import net.ormr.kcss.dimens.LinearDimension.Companion.from as dimen
+import net.ormr.kcss.dimensions.LinearDimension.Companion.from as dimen
 
 class BoxDimensions(
 	var top: LinearDimension = 0.px,

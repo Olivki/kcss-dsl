@@ -1,4 +1,4 @@
-package net.ormr.kcss.dimens
+package net.ormr.kcss.dimensions
 
 import net.ormr.kcss.cssDecimalFormat
 
