@@ -231,7 +231,7 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
     fun CharSequence.attr(
         attrName: Any,
         attrValue: Any,
-        attrFiler: AttrFilter,
+        attrFiler: AttributeFilter,
         body: (StyleSheetBuilder.() -> Unit)? = null,
     ): Selector {
         return when (this) {
@@ -246,7 +246,7 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
 
     operator fun CharSequence.get(
         attrName: Any,
-        attrFiler: AttrFilter,
+        attrFiler: AttributeFilter,
         attrValue: Any,
         body: (StyleSheetBuilder.() -> Unit)? = null,
     ) = attr(attrName, attrValue, attrFiler, body)

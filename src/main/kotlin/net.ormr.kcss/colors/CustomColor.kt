@@ -47,7 +47,7 @@ class CustomColor(
     }
 
     override fun toString() = when {
-        alpha < 1f -> "rgba($redInt,$greenInt,$blueInt,${formatCssDecimal(alpha)})"
+        alpha < 1F -> "rgba($redInt,$greenInt,$blueInt,${formatCssDecimal(alpha)})"
         else -> toHexString()
     }
 

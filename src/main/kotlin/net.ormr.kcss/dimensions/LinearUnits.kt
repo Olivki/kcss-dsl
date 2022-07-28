@@ -1,6 +1,6 @@
 package net.ormr.kcss.dimensions
 
-enum class LinearUnits(val value: String) {
+enum class LinearUnits(private val value: String) {
     // Relative units
     PX("px"),
     EM("em"),
