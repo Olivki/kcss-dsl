@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "1.7.10"
 }
 
-group = "azadev.kotlin"
+group = "net.ormr.kcss"
 version = "1.0"
 
 repositories {
