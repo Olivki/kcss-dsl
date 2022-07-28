@@ -1,10 +1,10 @@
 package net.ormr.kcss.dimensions
 
-class BoxDimensions(
-    var top: LinearDimension = 0.px,
-    var right: LinearDimension = top,
-    var bottom: LinearDimension = top,
-    var left: LinearDimension = right,
+data class BoxDimensions(
+    val top: LinearDimension = 0.px,
+    val right: LinearDimension = top,
+    val bottom: LinearDimension = top,
+    val left: LinearDimension = right,
 ) {
     override fun toString(): String = when {
         top == right && top == bottom && top == left -> top.toString()
