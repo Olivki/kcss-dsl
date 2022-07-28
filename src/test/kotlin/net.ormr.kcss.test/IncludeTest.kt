@@ -6,10 +6,10 @@ import org.junit.Test
 class IncludeTest : ATest {
     @Test
     fun basic() {
-        val css1 = Stylesheet {
+        val css1 = StyleSheetBuilder {
             a { color = 0xffffff }
         }
-        val css2 = Stylesheet {
+        val css2 = StyleSheetBuilder {
             a { color = 0xf2cacf }
         }
 
@@ -22,7 +22,7 @@ class IncludeTest : ATest {
             a.hover { color = 0xf2cacf }
         }
 
-        val css = Stylesheet {
+        val css = StyleSheetBuilder {
             a { color = 0xffffff }
             hoverLinks()
             a.active { color = 0xff0000 }
@@ -42,7 +42,7 @@ class IncludeTest : ATest {
             }
         }
 
-        val css = Stylesheet {
+        val css = StyleSheetBuilder {
             div {
                 margin = 0
                 clrfix()

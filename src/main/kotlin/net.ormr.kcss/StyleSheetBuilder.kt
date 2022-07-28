@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package net.ormr.kcss
 
 import java.io.File
@@ -5,17 +7,17 @@ import java.io.File
 // CSS Selector Reference
 // http://www.w3schools.com/cssref/css_selectors.asp
 
-class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
+class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASelector {
+    private val properties = mutableListOf<Property>()
+    private val children = mutableListOf<StyleSheetBuilder>()
     var selector: Selector? = null
     var atRule: String? = null
-    val properties = ArrayList<Property>(2)
-    val children = ArrayList<Stylesheet>()
 
     init {
         callback?.invoke(this)
     }
 
-    fun include(stylesheet: Stylesheet): Stylesheet {
+    fun include(stylesheet: StyleSheetBuilder): StyleSheetBuilder {
         children.add(stylesheet)
         return this
     }
@@ -24,9 +26,9 @@ class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
         selector: String,
         _spaceBefore: Boolean,
         _spaceAfter: Boolean,
-        body: (Stylesheet.() -> Unit)?,
+        body: (StyleSheetBuilder.() -> Unit)?,
     ): Selector {
-        val stylesheet = Stylesheet()
+        val stylesheet = StyleSheetBuilder()
         val sel = Selector(stylesheet)
         sel.custom(selector, _spaceBefore, _spaceAfter)
 
@@ -44,7 +46,7 @@ class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
         properties.add(Property(name, value))
     }
 
-    fun moveDataTo(stylesheet: Stylesheet) {
+    fun moveDataTo(stylesheet: StyleSheetBuilder) {
         stylesheet.properties.addAll(properties)
         properties.clear()
 
@@ -117,28 +119,28 @@ class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
     //
     // AT-RULES
     //
-    fun at(rule: Any, body: (Stylesheet.() -> Unit)? = null): Stylesheet {
-        val stylesheet = Stylesheet(body)
+    fun at(rule: Any, body: (StyleSheetBuilder.() -> Unit)? = null): StyleSheetBuilder {
+        val stylesheet = StyleSheetBuilder(body)
         stylesheet.selector = Selector.createEmpty(stylesheet)
         stylesheet.atRule = "@$rule"
         include(stylesheet)
         return stylesheet
     }
 
-    fun media(vararg conditions: Any, body: (Stylesheet.() -> Unit)? = null) =
+    fun media(vararg conditions: Any, body: (StyleSheetBuilder.() -> Unit)? = null) =
         at("media (${conditions.joinToString(") and (")})", body)
 
 
     //
     // MAIN COMMANDS
     //
-    operator fun CharSequence.invoke(body: Stylesheet.() -> Unit) = toSelector().invoke(body)
+    operator fun CharSequence.invoke(body: StyleSheetBuilder.() -> Unit) = toSelector().invoke(body)
 
     fun CharSequence.custom(
         selector: String,
         _spaceBefore: Boolean = true,
         _spaceAfter: Boolean = true,
-        body: (Stylesheet.() -> Unit)? = null,
+        body: (StyleSheetBuilder.() -> Unit)? = null,
     ): Selector {
         return when (this) {
             is ASelector -> custom(selector, _spaceBefore, _spaceAfter, body)
@@ -146,14 +148,14 @@ class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
         }
     }
 
-    fun CharSequence.pseudo(selector: String, body: (Stylesheet.() -> Unit)? = null): Selector {
+    fun CharSequence.pseudo(selector: String, body: (StyleSheetBuilder.() -> Unit)? = null): Selector {
         return when (this) {
             is ASelector -> pseudo(selector, body)
             else -> toSelector().pseudo(selector, body)
         }
     }
 
-    fun CharSequence.pseudoFn(selector: String, body: (Stylesheet.() -> Unit)? = null): Selector {
+    fun CharSequence.pseudoFn(selector: String, body: (StyleSheetBuilder.() -> Unit)? = null): Selector {
         return when (this) {
             is ASelector -> pseudoFn(selector, body)
             else -> toSelector().pseudoFn(selector, body)
@@ -169,7 +171,7 @@ class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
                 return sel
             }
 
-            is Stylesheet -> {
+            is StyleSheetBuilder -> {
                 val selector = obj.selector!!
                 selector.rows.addAll(0, sel.rows)
                 return selector
@@ -181,12 +183,12 @@ class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
 
     private fun CharSequence.toSelector() = when (this) {
         is Selector -> this
-        is Stylesheet -> this.selector!!
+        is StyleSheetBuilder -> this.selector!!
         else -> when (this[0]) {
-            '.' -> this@Stylesheet.c(this.drop(1))
-            '#' -> this@Stylesheet.id(this.drop(1))
-            '@' -> this@Stylesheet.at(this.drop(1)).selector!!
-            else -> this@Stylesheet.custom(this.toString())
+            '.' -> this@StyleSheetBuilder.c(this.drop(1))
+            '#' -> this@StyleSheetBuilder.id(this.drop(1))
+            '@' -> this@StyleSheetBuilder.at(this.drop(1)).selector!!
+            else -> this@StyleSheetBuilder.custom(this.toString())
         }
     }
 
@@ -212,14 +214,14 @@ class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
     http://stackoverflow.com/questions/13987979/how-to-properly-escape-attribute-values-in-css-js-selector-attr-value
     https://developer.mozilla.org/en-US/docs/Web/API/CSS/escape
      */
-    fun CharSequence.attr(attrName: Any, body: (Stylesheet.() -> Unit)? = null): Selector {
+    fun CharSequence.attr(attrName: Any, body: (StyleSheetBuilder.() -> Unit)? = null): Selector {
         return when (this) {
             is ASelector -> custom("[$attrName]", false, true, body)
             else -> toSelector().attr(attrName, body)
         }
     }
 
-    fun CharSequence.attr(attrName: Any, attrValue: Any, body: (Stylesheet.() -> Unit)? = null): Selector {
+    fun CharSequence.attr(attrName: Any, attrValue: Any, body: (StyleSheetBuilder.() -> Unit)? = null): Selector {
         return when (this) {
             is ASelector -> custom("[$attrName=${escapeAttrValue(attrValue.toString())}]", false, true, body)
             else -> toSelector().attr(attrName, attrValue, body)
@@ -230,7 +232,7 @@ class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
         attrName: Any,
         attrValue: Any,
         attrFiler: AttrFilter,
-        body: (Stylesheet.() -> Unit)? = null,
+        body: (StyleSheetBuilder.() -> Unit)? = null,
     ): Selector {
         return when (this) {
             is ASelector -> custom("[$attrName$attrFiler=${escapeAttrValue(attrValue.toString())}]", false, true, body)
@@ -238,15 +240,15 @@ class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
         }
     }
 
-    operator fun CharSequence.get(attrName: Any, body: (Stylesheet.() -> Unit)? = null) = attr(attrName, body)
-    operator fun CharSequence.get(attrName: Any, attrValue: Any, body: (Stylesheet.() -> Unit)? = null) =
+    operator fun CharSequence.get(attrName: Any, body: (StyleSheetBuilder.() -> Unit)? = null) = attr(attrName, body)
+    operator fun CharSequence.get(attrName: Any, attrValue: Any, body: (StyleSheetBuilder.() -> Unit)? = null) =
         attr(attrName, attrValue, body)
 
     operator fun CharSequence.get(
         attrName: Any,
         attrFiler: AttrFilter,
         attrValue: Any,
-        body: (Stylesheet.() -> Unit)? = null,
+        body: (StyleSheetBuilder.() -> Unit)? = null,
     ) = attr(attrName, attrValue, attrFiler, body)
 
     private fun escapeAttrValue(str: String): String {
@@ -260,8 +262,8 @@ class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
     //
     // CLASSES AND IDs
     //
-    fun CharSequence.c(selector: Any, body: (Stylesheet.() -> Unit)? = null) = custom(".$selector", false, true, body)
-    fun CharSequence.id(selector: Any, body: (Stylesheet.() -> Unit)? = null) = custom("#$selector", false, true, body)
+    fun CharSequence.c(selector: Any, body: (StyleSheetBuilder.() -> Unit)? = null) = custom(".$selector", false, true, body)
+    fun CharSequence.id(selector: Any, body: (StyleSheetBuilder.() -> Unit)? = null) = custom("#$selector", false, true, body)
 
 
     //
@@ -425,28 +427,28 @@ class Stylesheet(callback: (Stylesheet.() -> Unit)? = null) : ASelector {
     val CharSequence.valid: Selector get() = pseudo(":valid") // (CSS3) Selects all input elements with a valid value
     val CharSequence.visited: Selector get() = pseudo(":visited") // (CSS1) Selects all visited links
 
-    fun CharSequence.lang(language: Any, body: (Stylesheet.() -> Unit)? = null) = pseudoFn(
+    fun CharSequence.lang(language: Any, body: (StyleSheetBuilder.() -> Unit)? = null) = pseudoFn(
         ":lang($language)",
         body
     ) // (CSS2) Selects every <p> element with a lang attribute equal to "it" (Italian)
 
-    fun CharSequence.not(selector: Any, body: (Stylesheet.() -> Unit)? = null) =
+    fun CharSequence.not(selector: Any, body: (StyleSheetBuilder.() -> Unit)? = null) =
         pseudoFn(":not($selector)", body) // (CSS3) Selects every element that is not a <p> element
 
-    fun CharSequence.nthChild(n: Any, body: (Stylesheet.() -> Unit)? = null) =
+    fun CharSequence.nthChild(n: Any, body: (StyleSheetBuilder.() -> Unit)? = null) =
         pseudoFn(":nth-child($n)", body) // (CSS3) Selects every <p> element that is the second child of its parent
 
-    fun CharSequence.nthLastChild(n: Any, body: (Stylesheet.() -> Unit)? = null) = pseudoFn(
+    fun CharSequence.nthLastChild(n: Any, body: (StyleSheetBuilder.() -> Unit)? = null) = pseudoFn(
         ":nth-last-child($n)",
         body
     ) // (CSS3) Selects every <p> element that is the second child of its parent, counting from the last child
 
-    fun CharSequence.nthLastOfType(n: Any, body: (Stylesheet.() -> Unit)? = null) = pseudoFn(
+    fun CharSequence.nthLastOfType(n: Any, body: (StyleSheetBuilder.() -> Unit)? = null) = pseudoFn(
         ":nth-last-of-type($n)",
         body
     ) // (CSS3) Selects every <p> element that is the second <p> element of its parent, counting from the last child
 
-    fun CharSequence.nthOfType(n: Any, body: (Stylesheet.() -> Unit)? = null) = pseudoFn(
+    fun CharSequence.nthOfType(n: Any, body: (StyleSheetBuilder.() -> Unit)? = null) = pseudoFn(
         ":nth-of-type($n)",
         body
     ) // (CSS3) Selects every <p> element that is the second <p> element of its parent

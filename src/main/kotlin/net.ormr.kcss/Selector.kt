@@ -1,10 +1,10 @@
 package net.ormr.kcss
 
 
-class Selector(var stylesheet: Stylesheet) : ASelector {
+class Selector(var stylesheet: StyleSheetBuilder) : ASelector {
     var rows = ArrayList<Row>(1)
 
-    operator fun invoke(body: Stylesheet.() -> Unit): Stylesheet {
+    operator fun invoke(body: StyleSheetBuilder.() -> Unit): StyleSheetBuilder {
         stylesheet.body()
         return stylesheet
     }
@@ -13,7 +13,7 @@ class Selector(var stylesheet: Stylesheet) : ASelector {
         selector: String,
         _spaceBefore: Boolean,
         _spaceAfter: Boolean,
-        body: (Stylesheet.() -> Unit)?,
+        body: (StyleSheetBuilder.() -> Unit)?,
     ): Selector {
         if (rows.isEmpty())
             rows.add(Row(selector, _spaceBefore, _spaceAfter))
@@ -38,7 +38,7 @@ class Selector(var stylesheet: Stylesheet) : ASelector {
                 obj.stylesheet.moveDataTo(stylesheet)
             }
 
-            is Stylesheet -> {
+            is StyleSheetBuilder -> {
                 append(obj.selector!!)
                 obj.moveDataTo(stylesheet)
             }
@@ -87,6 +87,6 @@ class Selector(var stylesheet: Stylesheet) : ASelector {
     }
 
     companion object {
-        fun createEmpty(stylesheet: Stylesheet) = Selector(stylesheet).apply { rows.add(Row("", false, true)) }
+        fun createEmpty(stylesheet: StyleSheetBuilder) = Selector(stylesheet).apply { rows.add(Row("", false, true)) }
     }
 }

@@ -1,6 +1,6 @@
 package net.ormr.kcss.test
 
-import net.ormr.kcss.Stylesheet
+import net.ormr.kcss.StyleSheetBuilder
 import net.ormr.kcss.color
 import net.ormr.kcss.top
 import org.junit.Assert.*
@@ -14,10 +14,10 @@ class RenderToFileTest : ATest {
         val file = File("AzaKotlinCSS_TestFile_${Date().time}.css")
         file.delete()
 
-        val css1 = Stylesheet {
+        val css1 = StyleSheetBuilder {
             div { color = 0xffffff }
         }
-        val css2 = Stylesheet {
+        val css2 = StyleSheetBuilder {
             a { top = 0 }
         }
 

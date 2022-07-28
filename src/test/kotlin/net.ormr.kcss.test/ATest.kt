@@ -1,15 +1,15 @@
 package net.ormr.kcss.test
 
-import net.ormr.kcss.Stylesheet
+import net.ormr.kcss.StyleSheetBuilder
 import org.junit.Assert.assertEquals
 
 interface ATest {
-    fun testRender(expected: String, callback: Stylesheet.() -> Unit) {
-        val stylesheet = Stylesheet(callback)
+    fun testRender(expected: String, callback: StyleSheetBuilder.() -> Unit) {
+        val stylesheet = StyleSheetBuilder(callback)
         assertEquals(expected, stylesheet.render())
     }
 
-    fun testRender(expected: String, stylesheet: Stylesheet) {
+    fun testRender(expected: String, stylesheet: StyleSheetBuilder) {
         assertEquals(expected, stylesheet.render())
     }
 }

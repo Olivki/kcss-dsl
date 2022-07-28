@@ -354,7 +354,7 @@ class RenderTest : ATest {
         }
     }
 
-    private fun Stylesheet.myMediaQuery(body: Stylesheet.() -> Unit) =
+    private fun StyleSheetBuilder.myMediaQuery(body: StyleSheetBuilder.() -> Unit) =
         media("min-width: 100px", "orientation: landscape").invoke(body)
 
     @Test
