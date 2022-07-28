@@ -1,7 +1,7 @@
 package net.ormr.kcss.test
 
 import net.ormr.kcss.StyleSheetBuilder
-import org.junit.Assert.assertEquals
+import kotlin.test.assertEquals
 
 interface ATest {
     fun testRender(expected: String, callback: StyleSheetBuilder.() -> Unit) {

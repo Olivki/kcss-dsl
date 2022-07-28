@@ -1,7 +1,7 @@
 package net.ormr.kcss.test
 
 import net.ormr.kcss.*
-import org.junit.Test
+import kotlin.test.Test
 
 class IncludeTest : ATest {
     @Test

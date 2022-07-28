@@ -5,8 +5,8 @@ import net.ormr.kcss.colors.hex
 import net.ormr.kcss.colors.rgb
 import net.ormr.kcss.colors.rgba
 import net.ormr.kcss.dimensions.*
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 // CSS Selectors:
 // http://www.w3schools.com/cssref/css_selectors.asp

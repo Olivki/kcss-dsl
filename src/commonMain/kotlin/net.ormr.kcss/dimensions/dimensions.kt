@@ -20,7 +20,6 @@ val Number.pt: LinearDimension get() = linear(this, LinearUnits.PT)
 
 val Number.pc: LinearDimension get() = linear(this, LinearUnits.PC)
 
-@Suppress("NOTHING_TO_INLINE")
 private inline fun linear(value: Number, units: LinearUnits) = LinearDimension(value.toFloat(), units)
 
 fun box(top: LinearDimension): BoxDimension = BoxDimension(top)

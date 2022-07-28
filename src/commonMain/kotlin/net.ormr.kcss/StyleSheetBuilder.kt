@@ -2,8 +2,6 @@
 
 package net.ormr.kcss
 
-import java.io.File
-
 // CSS Selector Reference
 // http://www.w3schools.com/cssref/css_selectors.asp
 
@@ -56,13 +54,6 @@ class StyleSheetBuilder(callback: (StyleSheetBuilder.() -> Unit)? = null) : ASel
     fun render() = buildString { render(this) }
 
     fun renderTo(builder: StringBuilder) = render(builder)
-
-    fun renderToFile(file: File) {
-        file.delete()
-        file.writeText(render()) // "writeText" is a really clever helper
-    }
-
-    fun renderToFile(path: String) = renderToFile(File(path))
 
     private fun render(builder: StringBuilder, selectorPrefix: CharSequence = "", spaceBefore: Boolean = true) {
         val selector = selector
